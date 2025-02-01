@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Ordering System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      background: url('styles/student2.jpg') no-repeat center center/cover;
+    }
+    .container {
+      max-width: 500px;
+      background: #000;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+    }
+    h3, h4 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .menu-item, .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #444;
+    }
+    .menu-item span, .cart-item span {
+      flex: 1;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .add-button {
+      background-color: #ff3333;
+      color: white;
+    }
+    .add-button:hover {
+      background-color: #cc0000;
+    }
+    .remove-button {
+      background-color: #ff6666;
+      color: white;
+    }
+    .pay-button {
+      background-color: #28a745;
+      color: white;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .pay-button:hover {
+      background-color: #218838;
+    }
+    .summary {
+      text-align: right;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+    .upi-scanner img {
+      width: 100%;
+      max-width: 300px;
+      margin: 10px auto;
+      display: block;
+    }
+    .instructions {
+      color: #d9534f;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+    .token-display {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Menu Section -->
+  <div class="container">
+    <h3>Menu</h3>
+    <div id="menu"></div>
+  </div>
+
+  <!-- Cart Section -->
+  <div class="container hidden" id="cart-container">
+    <h4>Your Cart</h4>
+    <div id="cart"></div>
+    <div class="summary" id="total">Total: $0.00</div>
+    <button class="pay-button" onclick="showUPIScanner()">Proceed to Payment</button>
+  </div>
+
+  <!-- UPI Scanner Section -->
+  <div class="container hidden" id="upi-scanner">
+    <h4>Scan to Pay</h4>
+    <img src="https://via.placeholder.com/300?text=UPI+QR+Code" alt="UPI QR Code">
+    <p class="instructions">Please complete the payment and upload the screenshot in the next step.</p>
+    <button class="pay-button" onclick="showUploadSection()">I Have Paid</button>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="container hidden" id="upload-section">
+    <h4>Upload Payment Screenshot</h4>
+    <input type="file" id="paymentScreenshot" accept="image/*">
+    <button class="pay-button" onclick="verifyPayment()">Submit Screenshot</button>
+  </div>
+
+  <!-- Token Display -->
+  <div class="container hidden" id="token-display">
+    <h4>Payment Verified</h4>
+    <p class="token-display">Your Token Number: <span id="token-number"></span></p>
+  </div>
+
+  <script>
+    const menu = [
+      { name: "Burger", price: 5 },
+      { name: "Pizza", price: 8 },
+      { name: "Pasta", price: 7 },
+      { name: "Salad", price: 4 }
+    ];
+
+    let cart = [];
+    const tokens = new Set();
+
+    // Render Menu
+    const renderMenu = () => {
+      const menuDiv = document.getElementById("menu");
+      menuDiv.innerHTML = menu.map((item, index) => `
+        <div class="menu-item">
+          <span>${item.name} - $${item.price.toFixed(2)}</span>
+          <button class="add-button" onclick="addToCart(${index})">Add to Cart</button>
+        </div>
+      `).join("");
+    };
+
+    // Add item to cart
+    const addToCart = (index) => {
+      cart.push(menu[index]);
+      renderCart();
+    };
+
+    // Remove item from cart
+    const removeFromCart = (index) => {
+      cart.splice(index, 1);
+      renderCart();
+    };
+
+    // Render Cart
+    const renderCart = () => {
+      const cartContainer = document.getElementById("cart-container");
+      const cartDiv = document.getElementById("cart");
+      const totalDiv = document.getElementById("total");
+
+      if (cart.length === 0) {
+        cartContainer.classList.add("hidden");
+        return;
+      }
+
+      cartContainer.classList.remove("hidden");
+      cartDiv.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+          <span>${item.name} - $${item.price.toFixed(2)}</span>
+          <button class="remove-button" onclick="removeFromCart(${index})">Remove</button>
+        </div>
+      `).join("");
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      totalDiv.textContent = `Total: $${total.toFixed(2)}`;
+    };
+
+    // Show UPI Scanner
+    const showUPIScanner = () => {
+      document.getElementById("upi-scanner").classList.remove("hidden");
+      document.getElementById("cart-container").classList.add("hidden");
+    };
+
+    // Show Upload Section
+    const showUploadSection = () => {
+      document.getElementById("upi-scanner").classList.add("hidden");
+      document.getElementById("upload-section").classList.remove("hidden");
+    };
+
+    // Verify Payment and Generate Token
+    const verifyPayment = () => {
+      const screenshot = document.getElementById("paymentScreenshot").files[0];
+
+      if (!screenshot) {
+        alert("Please upload a screenshot of your payment.");
+        return;
+      }
+
+      // Simulate verification and token generation
+      setTimeout(() => {
+        const token = generateUniqueToken();
+        document.getElementById("token-number").textContent = token;
+        document.getElementById("upload-section").classList.add("hidden");
+        document.getElementById("token-display").classList.remove("hidden");
+        cart = []; // Clear the cart
+        renderCart();
+      }, 2000);
+    };
+
+    // Generate Unique Token
+    const generateUniqueToken = () => {
+      let token;
+      do {
+        token = Math.floor(Math.random() * 10000) + 1;
+      } while (tokens.has(token));
+      tokens.add(token);
+      return token;
+    };
+
+    renderMenu();
+  </script>
+</body>
+</html>
