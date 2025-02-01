@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - TASTE GO</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('styles/adminpage.jpg') no-repeat center center/cover;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .admin-container {
+      max-width: 600px;
+      background: rgba(0, 0, 0, 0.8); /* Semi-transparent black for readability */
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .admin-container h1 {
+      text-align: center;
+      color: #ff4d4d;
+      margin-bottom: 20px;
+    }
+
+    .admin-container h3 {
+      color: #ff4d4d;
+    }
+
+    .admin-container input,
+    .admin-container button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .admin-container input {
+      background-color: #333;
+      color: white;
+    }
+
+    .admin-container button {
+      background-color: #ff4d4d;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .admin-container button:hover {
+      background-color: #cc0000;
+    }
+
+    #codeDisplay,
+    #dateDisplay {
+      font-weight: bold;
+      margin-top: 10px;
+      color: #ff4d4d;
+    }
+
+    .date-info {
+      margin-top: 20px;
+      font-style: italic;
+      color: #ddd;
+    }
+
+    .restaurant-date-block {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid #444;
+    }
+
+    .restaurant-date-block span {
+      font-weight: bold;
+      color: #ff4d4d;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Admin Panel</h1>
+
+    <h3>Add New Restaurant</h3>
+    <input type="text" placeholder="Enter Restaurant Name" id="restaurantName">
+    <label for="restaurantDate">Select Date:</label>
+    <input type="date" id="restaurantDate">
+    <button onclick="addRestaurant()">Add Restaurant</button>
+
+    <h3>Generate Weekly Code</h3>
+    <button onclick="generateCode()">Generate Code</button>
+    <p id="codeDisplay"></p>
+    <p id="dateDisplay"></p>
+
+    <div class="date-info">
+      <div class="restaurant-date-block">
+        <span id="restaurantDateDisplay"></span>
+        <span id="uploadDate"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function formatDate(date) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function addRestaurant() {
+      const restaurantName = document.getElementById('restaurantName').value;
+      const restaurantDate = document.getElementById('restaurantDate').value;
+
+      if (restaurantName && restaurantDate) {
+        const currentDate = new Date();
+        const formattedCurrentDate = formatDate(currentDate);
+        alert(`Restaurant '${restaurantName}' added successfully!`);
+        document.getElementById('restaurantName').value = '';
+        document.getElementById('restaurantDate').value = '';
+
+        document.getElementById('restaurantDateDisplay').innerText = `Restaurant '${restaurantName}' Date: ${restaurantDate}`;
+        document.getElementById('uploadDate').innerText = `Restaurant added on: ${formattedCurrentDate}`;
+      } else {
+        alert('Please enter a restaurant name and select a date.');
+      }
+    }
+
+    function generateCode() {
+      const code = Math.random().toString(36).substr(2, 8).toUpperCase();
+      const currentDate = new Date();
+      const formattedCurrentDate = formatDate(currentDate);
+      document.getElementById('codeDisplay').innerText = `Generated Code: ${code}`;
+      document.getElementById('dateDisplay').innerText = `Code generated on: ${formattedCurrentDate}`;
+      alert('Weekly code generated successfully!');
+    }
+  </script>
+</body>
+</html>
+
