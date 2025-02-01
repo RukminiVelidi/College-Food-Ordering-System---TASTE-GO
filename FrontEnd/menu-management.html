@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Menu Management</title>
+  <style>
+    /* General Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #f9f9f9;
+    }
+
+    .left-panel {
+      flex: 1;
+      background: url('styles/21.jpg') no-repeat center center/cover;
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 500px;
+      margin: 20px 0;
+    }
+
+    h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input, .button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .button {
+      background-color: #d32f2f;
+      color: white;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #9a0007;
+    }
+
+    .image-preview img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Left Panel with Background Image -->
+  <div class="left-panel"></div>
+
+  <!-- Right Panel with Form -->
+  <div class="right-panel">
+    <!-- Form Container -->
+    <div class="container" id="formContainer">
+      <h3>Restaurant Menu Management</h3>
+      <button class="button" onclick="loadMenu()">Load Saved Menu</button>
+      <form id="menuForm">
+        <div id="menuItemsContainer"></div>
+        <button type="button" class="button" onclick="addMenuItem()">Add More Items</button>
+        <button type="button" class="button" onclick="saveMenu()">Save Menu</button>
+      </form>
+      <button class="button" onclick="toggleScanner()">Scanner</button>
+    </div>
+
+    <!-- Scanner Upload Container -->
+    <div class="container hidden" id="scannerContainer">
+      <h3>Upload UPI Scanner</h3>
+      <input type="file" class="input" id="upiScannerInput" accept="image/*" onchange="previewUPIImage()">
+      <div class="image-preview" id="upiScannerPreview">
+        <img src="styles/scanner.jpg" alt="Scanner Preview">
+      </div>
+      <button type="button" class="button" onclick="saveUPIScanner()">Save UPI Scanner</button>
+      <button type="button" class="button" onclick="toggleScanner()">Back</button>
+    </div>
+  </div>
+
+  <script>
+    const menu = [];
+
+    // Add a new menu item input
+    function addMenuItem(name = '', price = '') {
+      const container = document.getElementById('menuItemsContainer');
+      const menuItem = document.createElement('div');
+      menuItem.innerHTML = `
+        <input type="text" class="input menu-item-name" placeholder="Menu Item Name" value="${name}" required>
+        <input type="number" class="input menu-item-price" placeholder="Price" value="${price}" required>
+        <button type="button" class="button" onclick="removeMenuItem(this)">Remove</button>
+      `;
+      container.appendChild(menuItem);
+    }
+
+    // Remove a menu item input
+    function removeMenuItem(button) {
+      button.parentElement.remove();
+    }
+
+    // Save the menu to local storage
+    function saveMenu() {
+      const names = document.querySelectorAll('.menu-item-name');
+      const prices = document.querySelectorAll('.menu-item-price');
+      menu.length = 0;
+
+      names.forEach((input, i) => {
+        const name = input.value.trim();
+        const price = parseFloat(prices[i].value.trim());
+        if (name && price) menu.push({ name, price });
+      });
+
+      if (menu.length === 0) {
+        alert('Please add valid menu items.');
+        return;
+      }
+
+      localStorage.setItem('restaurantMenu', JSON.stringify(menu));
+      alert('Menu saved successfully!');
+    }
+
+    // Load the menu from local storage
+    function loadMenu() {
+      const savedMenu = JSON.parse(localStorage.getItem('restaurantMenu') || '[]');
+      if (savedMenu.length === 0) {
+        alert('No saved menu found.');
+        return;
+      }
+
+      const container = document.getElementById('menuItemsContainer');
+      container.innerHTML = ''; // Clear existing inputs
+      savedMenu.forEach(item => addMenuItem(item.name, item.price));
+      alert('Menu loaded successfully!');
+    }
+
+    // Preview UPI Scanner Image
+    function previewUPIImage() {
+      const input = document.getElementById('upiScannerInput');
+      const preview = document.getElementById('upiScannerPreview');
+      preview.innerHTML = '';
+
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.innerHTML = '<img src="styles/scanner.jpg" alt="Scanner Preview">';
+      }
+    }
+
+    // Save UPI Scanner Image to local storage
+    function saveUPIScanner() {
+      const input = document.getElementById('upiScannerInput');
+      if (!input.files || input.files.length === 0) {
+        alert('Please select a UPI scanner image.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        localStorage.setItem('upiScannerImage', e.target.result);
+        alert('UPI scanner saved successfully!');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    // Toggle Scanner Visibility
+    function toggleScanner() {
+      const formContainer = document.getElementById('formContainer');
+      const scannerContainer = document.getElementById('scannerContainer');
+      formContainer.classList.toggle('hidden');
+      scannerContainer.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>
+
+

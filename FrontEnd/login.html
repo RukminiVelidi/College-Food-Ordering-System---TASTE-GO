@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASTE GO - Login</title>
+  <link rel="stylesheet" href="css/login.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: url('styles/login.png') no-repeat center center/cover;
+    }
+
+    header h1 {
+      margin-bottom: 20px;
+      color: #61f008e8; /* Bright red color for the header */
+      margin-left: 40px;
+    }
+
+    form {
+      background: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    label, select, input, button, a {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color:#61f008e8; /* Bright red */
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #000; /* Darker red on hover */
+    }
+
+    .forgot-password {
+      margin-top: 10px;
+      text-align: center;
+      color:#61f008e8; /* Bright red color */
+      text-decoration: none;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    select {
+      border: 1px solid #61f008e8; /* Red border */
+    }
+
+    input:focus, select:focus {
+      border-color: #61f008e8; /* Darker red on focus */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Login to TASTE GO</h1>
+  </header>
+  <main>
+    <form id="loginForm">
+      <label for="loginType">Choose Login Type:</label>
+      <select id="loginType" required>
+        <option value="" disabled selected>Select Login Type</option>
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+        <option value="restaurant">Restaurant</option>
+      </select>
+
+      <div id="fieldsContainer">
+        <!-- Dynamic fields will be inserted here -->
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+    <a href="forgot-password.html" class="forgot-password">Forgot Password?</a>
+  </main>
+  <script>
+    // Handle dynamic field rendering based on user selection
+    document.getElementById("loginType").addEventListener("change", function () {
+      const loginType = this.value;
+      const fieldsContainer = document.getElementById("fieldsContainer");
+  
+      // Clear existing fields
+      fieldsContainer.innerHTML = "";
+  
+      // Define the fields for each login type
+      const fields = {
+        student: `
+          <input type="email" id="studentEmail" placeholder="Enter College Email (e.g., 23b01a4663@svecw.edu.in)" required>
+          <input type="password" id="studentPassword" placeholder="Enter Password" required>
+        `,
+        admin: `
+          <input type="text" id="adminUsername" placeholder="Enter Admin Username" required>
+          <input type="password" id="adminPassword" placeholder="Enter Password" required>
+        `,
+        restaurant: `
+          <input type="text" id="restaurantUsername" placeholder="Enter Restaurant Username" required>
+          <input type="text" id="restaurantCode" placeholder="Enter Unique Code" required>
+        `,
+      };
+  
+      // Insert the appropriate fields for the selected type
+      if (fields[loginType]) {
+        fieldsContainer.innerHTML = fields[loginType];
+      }
+    });
+  
+    // Handle form submission
+    document.getElementById("loginForm").addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent form submission
+      const loginType = document.getElementById("loginType").value;
+  
+      // Redirect based on login type
+      if (loginType === "student") {
+        window.location.href = "student.html"; // Redirect to student page
+      } else if (loginType === "admin") {
+        window.location.href = "admin.html"; // Redirect to admin page
+      } else if (loginType === "restaurant") {
+        window.location.href = "menu-management.html"; // Redirect to menu-management page
+      } else {
+        alert("Invalid login type selected or not supported yet!");
+      }
+    });
+  </script>
+</body>
+</html>
